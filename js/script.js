@@ -3,7 +3,7 @@ const time = document.querySelector('.time');
 const dateOut = document.querySelector('.date');
 const greetingSpan = document.querySelector('.greeting');
 const name2 = document.querySelector('.name');
-const buttonQuotes = document.querySelector('.change-quote');
+const buttonQuotes = document.querySelector('.new-quote-button');
 const wind = document.querySelector('.wind');
 const humidity = document.querySelector('.humidity');
 
@@ -15,31 +15,31 @@ const cityInput = document.querySelector('.city');
 
 //Settings
 
-// setTimeout(loadingMain, 1000);
-
-
 window.onload = function () {
     // document.body.classList.add('loaded_hiding');
     window.setTimeout(function () {
         document.querySelector('.loading-main').style.opacity = 0;
 
+        timerUPDATERid = setTimeout(weatherUpdate);
         setTimeout(()=> {
             document.querySelector('.loading-main').style.display = 'none';
             
         }, 1000)
     }, 1000);
 }
-// function loadingMain() {
-//     document.querySelector('.loading-main').style.opacity = 0;
 
-// }
+let minutesDelayWeatherUpdate = 5;
+let delayWeatherUpdate = minutesDelayWeatherUpdate * 60 * 1000;
+let timerUPDATERid;
+
 
 const state = {
-    language: 'en',
+    language: 'ru',
     photoSource: 'github',
-    blocks: ['time', 'date','greeting', 'quote', 'weather', 'audio', 'todolist']
+    blocks: ['time', 'date','greeting', 'quote', 'weather', 'audio', 'todolist'],
+    hour12: false,
 };
-  
+
 const blocksState = {
     "time": true,
     "date": true,
@@ -51,30 +51,80 @@ const blocksState = {
 };
 //
 
+function setLocalStorage() {
+    localStorage.setItem('name', name2.value);
+    if(cityInput.value != 'city not found'){
+        localStorage.setItem('city', cityInput.value);
+    }
+
+
+    //save to localstorage blocks state)
+
+    localStorage.setItem('time', blocksState.time);
+    localStorage.setItem('date', blocksState.date);
+    localStorage.setItem('greeting', blocksState.greeting);
+    localStorage.setItem('quote', blocksState.quote);
+    localStorage.setItem('weather', blocksState.weather);
+    localStorage.setItem('audio', blocksState.audio);
+    localStorage.setItem('todolist', blocksState.todolist);
+
+    localStorage.setItem('hour12', state.hour12);
+
+
+
+
+}
+function getLocalStorage() {
+    if(localStorage.getItem('name')) {
+      name2.value = localStorage.getItem('name');
+    }
+    if(localStorage.getItem('city')) {
+        cityInput.value = localStorage.getItem('city');
+    }
+
+
+    //get from localStorage to blockstate on load
+    blocksState.time = localStorage.getItem('time') === 'true' ? true : false;
+    blocksState.date = localStorage.getItem('date') === 'true' ? true : false;
+    blocksState.greeting = localStorage.getItem('greeting') === 'true' ? true : false;
+    blocksState.quote = localStorage.getItem('quote') === 'true' ? true : false;
+    blocksState.weather = localStorage.getItem('weather') === 'true' ? true : false;
+    blocksState.audio = localStorage.getItem('audio') === 'true' ? true : false;
+    blocksState.todolist = localStorage.getItem('todolist') === 'true' ? true : false;
+
+    //state
+    state.hour12 = localStorage.getItem('hour12') === 'true' ? true : false;
+}
+
+
+window.addEventListener('load', getLocalStorage)
+window.addEventListener('beforeunload', setLocalStorage)
+
 //initialize
 
 setTimeout(initBlocksState, 700);
 
-
-(function showTime() {
+setTimeout(
+    (function showTime() {
     
 
-    time.innerHTML = getTime();
-    dateOut.innerHTML = getDate();
-    greetingSpan.textContent = `${greeting()},`;
-    setTimeout(showTime, 1000);
-    
-})();
+        time.innerHTML = getTime();
+        dateOut.innerHTML = getDate();
+        greetingSpan.textContent = `${greeting()},`;
+        setTimeout(showTime, 1000);
+        
+    })(), 3000
+)
+
 
 
 function getTime(){
     let date = new Date();
-    let hours = date.getHours() > 9 ? date.getHours() : '0' + date.getHours();
-    let minutes = date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes();
-    let seconds = date.getSeconds() > 9 ? date.getSeconds() : '0' + date.getSeconds();
-
-    let str = `${hours}:${minutes}:${seconds}`;
-    return str;
+    if(state.hour12 === true){
+        return date.toLocaleString('en-US', { hour: 'numeric', minute: "2-digit", second: '2-digit', hour12: true })
+    } else {
+        return date.toLocaleString('ru-RU', { hour: '2-digit', minute: "2-digit", second: '2-digit'})
+    }
 }
 
 function getDate(){
@@ -103,51 +153,7 @@ function greeting(){
 }
 
 
-function setLocalStorage() {
-    localStorage.setItem('name', name2.value);
-    if(cityInput.value != 'city not found'){
-        localStorage.setItem('city', cityInput.value);
-    }
 
-
-    //save to localstorage blocks state)
-
-    localStorage.setItem('time', blocksState.time);
-    localStorage.setItem('date', blocksState.date);
-    localStorage.setItem('greeting', blocksState.greeting);
-    localStorage.setItem('quote', blocksState.quote);
-    localStorage.setItem('weather', blocksState.weather);
-    localStorage.setItem('audio', blocksState.audio);
-    localStorage.setItem('todolist', blocksState.todolist);
-
-}
-function getLocalStorage() {
-    if(localStorage.getItem('name')) {
-      name2.value = localStorage.getItem('name');
-    }
-    if(localStorage.getItem('city')) {
-        cityInput.value = localStorage.getItem('city');
-    }
-
-
-    //get from localStorage to blockstate on load
-    blocksState.time = localStorage.getItem('time') === 'true' ? true : false;
-    blocksState.date = localStorage.getItem('date') === 'true' ? true : false;
-    blocksState.greeting = localStorage.getItem('greeting') === 'true' ? true : false;
-    blocksState.quote = localStorage.getItem('quote') === 'true' ? true : false;
-    blocksState.weather = localStorage.getItem('weather') === 'true' ? true : false;
-    blocksState.audio = localStorage.getItem('audio') === 'true' ? true : false;
-    blocksState.todolist = localStorage.getItem('todolist') === 'true' ? true : false;
-
-}
-
-
-window.addEventListener('load', getLocalStorage)
-window.addEventListener('beforeunload', setLocalStorage)
-
-
-
-let loading = false;
 
 async function getQuotes() {
     let lang;
@@ -166,24 +172,23 @@ async function getQuotes() {
 getQuotes();
 
 
-getQuotes();
-
 buttonQuotes.addEventListener('click', () => {
     document.querySelector('.quote').classList.remove('fadeIn');
     document.querySelector('.author').classList.remove('fadeIn');
     document.querySelector('.quote').classList.add('fadeOut');
     document.querySelector('.author').classList.add('fadeOut');
     getQuotes();
-    // getQuotesRu();
     buttonQuotes.disabled = true;
     buttonQuotes.classList.add('loading');
+    document.querySelector('.quotes-wrapper').style.opacity = '0';
 })
 
 function showQuotes(data){
-
+    const arr = ['"',undefined,'"'];
+    arr[1] = data.quoteText;
     setTimeout(() => {
         //
-        document.querySelector('.quote').textContent = data.quoteText;
+        document.querySelector('.quote').textContent = arr.join('');
         document.querySelector('.author').textContent = data.quoteAuthor;
 
         //
@@ -194,35 +199,24 @@ function showQuotes(data){
         //
         buttonQuotes.disabled = false;
         buttonQuotes.classList.remove('loading');
+        document.querySelector('.quotes-wrapper').style.opacity = '.75';
 
     }, 200)
 
 
 
 }
-// function showQuotesRu(data){
-
-//     setTimeout(() => {
-//         //
-//         document.querySelector('.quote').textContent = data.quoteText;
-//         document.querySelector('.author').textContent = data.quoteAuthor;
-
-//         //
-//         document.querySelector('.quote').classList.remove('fadeOut');
-//         document.querySelector('.author').classList.remove('fadeOut');
-//         document.querySelector('.quote').classList.add('fadeIn');
-//         document.querySelector('.author').classList.add('fadeIn');
-//         //
-//         buttonQuotes.disabled = false;
-//         buttonQuotes.classList.remove('loading');
-
-//     }, 200)
-// }
-
 
 //weather plugin
 
-async function getWeather(city = 'Минск', lang='') {
+
+function weatherUpdate(){
+    getWeather(cityInput.value.length === 0 ? cityInput.value = 'Минск': cityInput.value);
+    timerUPDATERid = setTimeout(weatherUpdate, delayWeatherUpdate);
+}
+
+
+async function getWeather(city, lang='') {
     let humidity1, windSpeed, mps;
     if(state.language === 'en') {
         lang='en'
@@ -241,10 +235,13 @@ async function getWeather(city = 'Минск', lang='') {
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&lang=${lang}&appid=${apiKey}&units=metric`;
     document.querySelector(".weather-info-wrapper").classList.add('loadingweather');
     document.querySelector('.loaderIMG').classList.add('loaderIMGisLoading');
+    
+    
+    
     const res = await fetch(url);
     const data = await res.json(); 
 
-    console.log(data)
+    // console.log(data)
     if(data.cod != '200'){
 
         cityInput.value = data.message;
@@ -275,7 +272,6 @@ async function getWeather(city = 'Минск', lang='') {
         wind.textContent = `${windSpeed} ${Math.round(data.wind.speed)} ${mps}`;
         document.querySelector('.loaderIMG').classList.remove('loaderIMGisLoading');
         document.querySelector(".weather-info-wrapper").classList.remove('loadingweather');
-        
 
     }
 
@@ -289,7 +285,10 @@ cityInput.addEventListener('change', () => {
     document.querySelector(".weather-info-wrapper").classList.remove('weatheronfocus')
 
     if(cityInput.value){
-        getWeather(cityInput.value);
+        clearTimeout(timerUPDATERid);
+
+        timerUPDATERid = setTimeout(weatherUpdate);
+        // getWeather(cityInput.value);
 
 
     } else {
@@ -311,8 +310,9 @@ function addFocus(){
 cityInput.addEventListener('blur', () => {
     document.querySelector(".weather-info-wrapper").classList.remove('weatheronfocus')
 })
-getWeather(cityInput.value.length === 0 ? cityInput.value = 'Минск': cityInput.value);
 
+
+// setTimeout(getWeather, 2000, cityInput.value.length === 0 ? cityInput.value = 'Минск': cityInput.value)
 
 
 //slider images
@@ -373,7 +373,7 @@ document.querySelector(".settings-button").addEventListener('click', () => {
 })
 
 const arrayBody = [...document.body.children].filter(elem => elem.className != 'footer');
-const arrayFooter = [...document.body.children[2].children].filter(elem => elem.className != "settings-button" && elem.className != "settings-wrapper");
+const arrayFooter = [...document.body.children[3].children].filter(elem => elem.className != "settings-button" && elem.className != "settings-wrapper");
 console.log(arrayFooter)
 arrayBody.forEach(elem => {
     elem.addEventListener('click', function() {
@@ -436,7 +436,6 @@ function initBlocksState() {
     // : document.querySelector('#toggle-todo').checked = false; 
 }
 
-initBlocksState()
 // function initBlocksState(){
 //     const greeting = document.querySelector('.greeting-container');
 //     const weather = document.querySelector('.weather');
